@@ -2,7 +2,6 @@ use macroquad::prelude::*;
 
 pub mod animation;
 use animation::Animation;
-use macroquad::ui::hash;
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
@@ -34,18 +33,46 @@ async fn main() {
     )
     .unwrap();
 
-    let mut a = -100.0;
-    let mut b = 1.0;
-    let mut res = 100.0;
+    let mut a = 0.0;
+    let mut b = 0.0;
+    let mut res;
     loop {
         animation.set_camera();
+        res = a * b;
+
         draw_similarity_bar(&material, res);
         let mouse = animation.get_world_mouse();
-        draw_circle(mouse.x, mouse.y, 10.0, ORANGE);
 
-        animation::ui::Slider::new(vec2(0., 0.), vec2(100., 10.), -100.0..100.)
-            .set_mouse_pos(mouse)
+        let slider_size = vec2(400., 25.);
+        let slider_style = animation::ui::SliderStyle {
+            bar_height: 15.,
+            ..Default::default()
+        };
+        animation::ui::draw_text_centered(
+            &format!("a = {:.2}", a),
+            -slider_size.x / 2. - 100.,
+            200.,
+            30,
+            WHITE,
+        );
+        animation::ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
+            .mouse_pos(mouse)
+            .style(slider_style)
             .draw(&mut a);
+
+        animation::ui::draw_text_centered(
+            &format!("b = {:.2}", b),
+            -slider_size.x / 2. - 100.,
+            100.,
+            30,
+            WHITE,
+        );
+        animation::ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
+            .mouse_pos(mouse)
+            .style(slider_style)
+            .draw(&mut b);
+
+        animation::ui::draw_text_centered(&format!("a * b = {res:.2}"), 0., 0., 50, WHITE);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -82,7 +109,7 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
         indicator_y,
         INDICATOR_SIZE.0,
         INDICATOR_SIZE.1,
-        BLACK,
+        GRAY,
     );
     animation::ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 30, WHITE);
     animation::ui::draw_text_centered("0", 0., text_center_y, 30, WHITE);
@@ -116,7 +143,17 @@ varying vec2 uv;
 uniform sampler2D Texture;
 
 void main() {
-    vec3 out_color = mix(vec3(1.0, 0.0,0.0), vec3(0.0,1.0,0.0), uv.x);
-    gl_FragColor = vec4(out_color, 1.0);
+    // vec3 out_color = mix(vec3(1.0, 0.0,0.0), vec3(0.0,1.0,0.0), uv.x);
+    float diff = 0.003;
+    if(uv.x < 0.5 - diff) {
+        gl_FragColor = vec4(1.0,0.0,0.0, 1.0);
+    }
+    else if(uv.x > 0.5 + diff) {
+        gl_FragColor = vec4(0.0,1.0,0.0, 1.0);
+    }
+    else{
+        gl_FragColor = vec4(0.0,0.0,0.0, 1.0);
+    }
+    
 }
 "#;

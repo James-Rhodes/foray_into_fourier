@@ -155,6 +155,7 @@ pub mod ui {
         );
     }
 
+    #[derive(Copy, Clone)]
     pub struct SliderStyle {
         pub bar_height: f32,
         pub bar_color: Color,
@@ -163,7 +164,7 @@ pub mod ui {
     impl Default for SliderStyle {
         fn default() -> Self {
             Self {
-                bar_height: 3.,
+                bar_height: 5.,
                 bar_color: WHITE,
                 marker_color: GRAY,
             }
@@ -176,22 +177,28 @@ pub mod ui {
         style: SliderStyle,
         mouse_pos: Option<Vec2>,
         range: Range<f32>,
+        min_coords: Vec2,
+        max_coords: Vec2,
     }
     impl Slider {
         pub fn new(center_pos: Vec2, size: Vec2, range: Range<f32>) -> Self {
+            let min_coords = vec2(center_pos.x - size.x / 2., center_pos.y - size.y / 2.);
+            let max_coords = vec2(center_pos.x + size.x / 2., center_pos.y + size.y / 2.);
             Self {
                 center_pos,
                 size,
                 style: SliderStyle::default(),
                 mouse_pos: None,
                 range,
+                min_coords,
+                max_coords,
             }
         }
         pub fn style(mut self, style: SliderStyle) -> Self {
             self.style = style;
             self
         }
-        pub fn set_mouse_pos(mut self, mouse_pos: Vec2) -> Self {
+        pub fn mouse_pos(mut self, mouse_pos: Vec2) -> Self {
             self.mouse_pos = Some(mouse_pos);
             self
         }
@@ -216,14 +223,23 @@ pub mod ui {
                 *data,
                 self.range.start,
                 self.range.end,
-                -self.size.x / 2.,
-                self.size.x / 2.,
+                -self.size.x / 2. + self.center_pos.x,
+                self.size.x / 2. + self.center_pos.x,
             );
             let marker_pos = vec2(marker_x, self.center_pos.y);
-            let marker_intersects_mouse = marker_pos.distance(mouse_pos) <= self.size.y / 2.;
-            if is_mouse_button_down(MouseButton::Left) && marker_intersects_mouse {
-
-                //TODO
+            let mouse_intersects_bb = mouse_pos.x >= (self.min_coords.x - self.size.y / 2.)
+                && mouse_pos.x <= (self.max_coords.x + self.size.y / 2.)
+                && mouse_pos.y <= self.max_coords.y
+                && mouse_pos.y >= self.min_coords.y;
+            if is_mouse_button_down(MouseButton::Left) && mouse_intersects_bb {
+                *data = map(
+                    mouse_pos.x,
+                    self.min_coords.x,
+                    self.max_coords.x,
+                    self.range.start,
+                    self.range.end,
+                );
+                *data = data.clamp(self.range.start, self.range.end);
             }
             draw_circle(
                 marker_pos.x,
