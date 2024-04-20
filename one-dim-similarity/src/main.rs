@@ -17,7 +17,7 @@ fn window_conf() -> Conf {
 
 const SIM_BAR_POS: (f32, f32) = (-500., -200.);
 const SIM_BAR_SIZE: (f32, f32) = (1000., 25.);
-const INDICATOR_SIZE: (f32, f32) = (5., SIM_BAR_SIZE.1);
+const INDICATOR_SIZE: (f32, f32) = (10., SIM_BAR_SIZE.1);
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -49,10 +49,10 @@ async fn main() {
             ..Default::default()
         };
         animation::ui::draw_text_centered(
-            &format!("a = {:.2}", a),
-            -slider_size.x / 2. - 100.,
+            &format!("a = {:6.2}", a),
+            -slider_size.x / 2. - 125.,
             200.,
-            30,
+            50,
             WHITE,
         );
         animation::ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
@@ -61,10 +61,10 @@ async fn main() {
             .draw(&mut a);
 
         animation::ui::draw_text_centered(
-            &format!("b = {:.2}", b),
-            -slider_size.x / 2. - 100.,
+            &format!("b = {:6.2}", b),
+            -slider_size.x / 2. - 125.,
             100.,
-            30,
+            50,
             WHITE,
         );
         animation::ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
@@ -72,7 +72,7 @@ async fn main() {
             .style(slider_style)
             .draw(&mut b);
 
-        animation::ui::draw_text_centered(&format!("a * b = {res:.2}"), 0., 0., 50, WHITE);
+        animation::ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 60, WHITE);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -96,8 +96,8 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
     animation::ui::draw_text_centered(
         "Similarity",
         0.,
-        text_center_y + 3. * SIM_BAR_SIZE.1,
-        30,
+        text_center_y + 3.5 * SIM_BAR_SIZE.1,
+        50,
         WHITE,
     );
 
@@ -109,11 +109,11 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
         indicator_y,
         INDICATOR_SIZE.0,
         INDICATOR_SIZE.1,
-        GRAY,
+        WHITE,
     );
-    animation::ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 30, WHITE);
-    animation::ui::draw_text_centered("0", 0., text_center_y, 30, WHITE);
-    animation::ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 30, WHITE);
+    animation::ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
+    animation::ui::draw_text_centered("0", 0., text_center_y, 50, WHITE);
+    animation::ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
 }
 
 const DEFAULT_VERTEX_SHADER: &str = "

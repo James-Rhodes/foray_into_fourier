@@ -1,5 +1,5 @@
 [package]
-name = "macroquad_template"
+name = "one_dim_similarity"
 version = "0.1.0"
 edition = "2021"
 
