@@ -258,28 +258,59 @@ pub mod ui {
         pub decimal_places: usize,
     }
 
+    impl Default for LabelStyle {
+        fn default() -> Self {
+            Self {
+                pos_offset: vec2(0., 0.),
+                color: WHITE,
+                font_size: 12,
+                decimal_places: 2,
+            }
+        }
+    }
+
     #[derive(Copy, Clone)]
+    pub struct MarkerStyle {
+        pub length: f32,
+        pub thickness: f32,
+        pub color: Color,
+    }
+    impl Default for MarkerStyle {
+        fn default() -> Self {
+            Self {
+                length: 5.,
+                thickness: 2.,
+                color: WHITE,
+            }
+        }
+    }
+
+    #[derive(Default, Copy, Clone)]
     pub enum TickStyle {
-        LabelAndLine {
+        LabelAndMarker {
             label_style: LabelStyle,
-            line_length: f32,
-            line_thickness: f32,
-            line_color: Color,
+            marker_style: MarkerStyle,
         },
-        Line {
-            line_length: f32,
-            line_thickness: f32,
-            line_color: Color,
+        Marker {
+            style: MarkerStyle,
         },
         Label {
-            label_style: LabelStyle,
+            style: LabelStyle,
         },
+
+        #[default]
         Nothing,
     }
 
     pub enum GraphEndPointStyle {
         Arrow { thickness: f32 },
         Nothing,
+    }
+
+    impl Default for GraphEndPointStyle {
+        fn default() -> Self {
+            GraphEndPointStyle::Arrow { thickness: 7. }
+        }
     }
 
     pub struct AxisStyle {
@@ -289,6 +320,20 @@ pub mod ui {
         pub line_thickness: f32,
         pub line_color: Color,
     }
+
+    impl Default for AxisStyle {
+        fn default() -> Self {
+            AxisStyle {
+                tick_step: 0.5,
+                tick_style: TickStyle::default(),
+                end_point_style: GraphEndPointStyle::default(),
+                line_thickness: 3.,
+                line_color: WHITE,
+            }
+        }
+    }
+
+    #[derive(Default)]
     pub struct GraphStyle {
         pub x_style: AxisStyle,
         pub y_style: AxisStyle,
@@ -326,41 +371,12 @@ pub mod ui {
                 "The y_range must have start smaller than end"
             );
 
-            let tick_style = TickStyle::LabelAndLine {
-                label_style: LabelStyle {
-                    pos_offset: vec2(0., 0.),
-                    color: WHITE,
-                    font_size: 12,
-                    decimal_places: 2,
-                },
-                line_length: 3.,
-                line_thickness: 1.,
-                line_color: WHITE,
-            };
-
-            let style = GraphStyle {
-                x_style: AxisStyle {
-                    tick_step: (x_range.end - x_range.start) / 10.,
-                    tick_style,
-                    end_point_style: GraphEndPointStyle::Nothing,
-                    line_thickness: 2.,
-                    line_color: WHITE,
-                },
-                y_style: AxisStyle {
-                    tick_step: (y_range.end - y_range.start) / 10.,
-                    tick_style,
-                    end_point_style: GraphEndPointStyle::Nothing,
-                    line_thickness: 2.,
-                    line_color: WHITE,
-                },
-            };
-
             let mut graph = Self {
                 world_center_pos,
                 world_size,
                 x_range,
                 y_range,
-                style,
+                style: GraphStyle::default(),
                 world_min_coords: vec2(
                     world_center_pos.x - world_size.x / 2.,
                     world_center_pos.y - world_size.y / 2.,
@@ -385,6 +401,13 @@ pub mod ui {
         pub fn style(mut self, style: GraphStyle) -> Self {
             self.style = style;
             self
+        }
+        pub fn world_center_pos(&self) -> Vec2 {
+            self.world_center_pos
+        }
+
+        pub fn world_size(&self) -> Vec2 {
+            self.world_size
         }
 
         pub fn draw_axes(&self) {
@@ -512,22 +535,20 @@ pub mod ui {
             let (line_params, label_style) = match (&orientation, style) {
                 (
                     Orientation::Horizontal,
-                    TickStyle::LabelAndLine {
+                    TickStyle::LabelAndMarker {
                         label_style,
-                        line_length,
-                        line_thickness,
-                        line_color,
+                        marker_style,
                     },
                 ) => {
                     let label_pos = pos + label_style.pos_offset + hori_offset;
                     (
                         Some((
                             [
-                                vec2(pos.x, pos.y + line_length / 2.),
-                                vec2(pos.x, pos.y - line_length / 2.),
+                                vec2(pos.x, pos.y + marker_style.length / 2.),
+                                vec2(pos.x, pos.y - marker_style.length / 2.),
                             ],
-                            line_thickness,
-                            line_color,
+                            marker_style.thickness,
+                            marker_style.color,
                         )),
                         Some(LabelStyle {
                             pos_offset: label_pos,
@@ -535,52 +556,43 @@ pub mod ui {
                         }),
                     )
                 }
-                (
-                    Orientation::Horizontal,
-                    TickStyle::Line {
-                        line_length,
-                        line_thickness,
-                        line_color,
-                    },
-                ) => (
+                (Orientation::Horizontal, TickStyle::Marker { style }) => (
                     Some((
                         [
-                            vec2(pos.x, pos.y + line_length / 2.),
-                            vec2(pos.x, pos.y - line_length / 2.),
+                            vec2(pos.x, pos.y + style.length / 2.),
+                            vec2(pos.x, pos.y - style.length / 2.),
                         ],
-                        line_thickness,
-                        line_color,
+                        style.thickness,
+                        style.color,
                     )),
                     None,
                 ),
-                (Orientation::Horizontal, TickStyle::Label { label_style }) => {
-                    let label_pos = pos + label_style.pos_offset + hori_offset;
+                (Orientation::Horizontal, TickStyle::Label { style }) => {
+                    let label_pos = pos + style.pos_offset + hori_offset;
                     (
                         None,
                         Some(LabelStyle {
                             pos_offset: label_pos,
-                            ..label_style
+                            ..style
                         }),
                     )
                 }
                 (
                     Orientation::Vertical,
-                    TickStyle::LabelAndLine {
+                    TickStyle::LabelAndMarker {
                         label_style,
-                        line_length,
-                        line_thickness,
-                        line_color,
+                        marker_style,
                     },
                 ) => {
                     let label_pos = pos + label_style.pos_offset + vert_offset;
                     (
                         Some((
                             [
-                                vec2(pos.x + line_length / 2., pos.y),
-                                vec2(pos.x - line_length / 2., pos.y),
+                                vec2(pos.x + marker_style.length / 2., pos.y),
+                                vec2(pos.x - marker_style.length / 2., pos.y),
                             ],
-                            line_thickness,
-                            line_color,
+                            marker_style.thickness,
+                            marker_style.color,
                         )),
                         Some(LabelStyle {
                             pos_offset: label_pos,
@@ -588,31 +600,24 @@ pub mod ui {
                         }),
                     )
                 }
-                (
-                    Orientation::Vertical,
-                    TickStyle::Line {
-                        line_length,
-                        line_thickness,
-                        line_color,
-                    },
-                ) => (
+                (Orientation::Vertical, TickStyle::Marker { style }) => (
                     Some((
                         [
-                            vec2(pos.x + line_length / 2., pos.y),
-                            vec2(pos.x - line_length / 2., pos.y),
+                            vec2(pos.x + style.length / 2., pos.y),
+                            vec2(pos.x - style.length / 2., pos.y),
                         ],
-                        line_thickness,
-                        line_color,
+                        style.thickness,
+                        style.color,
                     )),
                     None,
                 ),
-                (Orientation::Vertical, TickStyle::Label { label_style }) => {
-                    let label_pos = pos + label_style.pos_offset + vert_offset;
+                (Orientation::Vertical, TickStyle::Label { style }) => {
+                    let label_pos = pos + style.pos_offset + vert_offset;
                     (
                         None,
                         Some(LabelStyle {
                             pos_offset: label_pos,
-                            ..label_style
+                            ..style
                         }),
                     )
                 }

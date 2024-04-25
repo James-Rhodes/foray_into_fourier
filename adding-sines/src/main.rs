@@ -1,13 +1,13 @@
 use macroquad::prelude::*;
-use std::{f32::consts::PI, ops::Range};
+use std::f32::consts::PI;
 
 pub mod animation;
 use animation::{
-    ui::{
-        draw_text_centered, AxisStyle, Graph, GraphEndPointStyle, GraphStyle, LabelStyle, TickStyle,
-    },
+    ui::{AxisStyle, Graph, GraphEndPointStyle, GraphStyle, LabelStyle, TickStyle},
     Animation,
 };
+
+use crate::animation::ui::MarkerStyle;
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
@@ -25,9 +25,6 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut animation = Animation::new(WINDOW_WIDTH, WINDOW_HEIGHT, None);
     // animation.enable_fxaa();
-
-    //TODO: Make the graph have nice defaults for Default so that the mess that is below is
-    //contained
 
     let x_sine: Vec<f32> = (-100..100)
         .map(|val| animation::map(val as f32, -100.0, 100.0, -2. * PI, 2. * PI))
@@ -61,16 +58,18 @@ async fn main() {
         .style(GraphStyle {
             x_style: AxisStyle {
                 tick_step: 0.5,
-                tick_style: TickStyle::LabelAndLine {
+                tick_style: TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
                         pos_offset: vec2(0., 0.),
                         color: WHITE,
                         font_size: 12,
                         decimal_places: 2,
                     },
-                    line_length: 5.,
-                    line_thickness: 2.,
-                    line_color: WHITE,
+                    marker_style: MarkerStyle {
+                        length: 5.,
+                        thickness: 2.,
+                        color: WHITE,
+                    },
                 },
                 end_point_style: GraphEndPointStyle::Arrow { thickness: 7. },
                 line_thickness: 3.,
@@ -78,16 +77,18 @@ async fn main() {
             },
             y_style: AxisStyle {
                 tick_step: 0.5,
-                tick_style: TickStyle::LabelAndLine {
+                tick_style: TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
                         pos_offset: vec2(0., 0.),
                         color: WHITE,
                         font_size: 12,
                         decimal_places: 2,
                     },
-                    line_length: 5.,
-                    line_thickness: 2.,
-                    line_color: WHITE,
+                    marker_style: MarkerStyle {
+                        length: 5.,
+                        thickness: 2.,
+                        color: WHITE,
+                    },
                 },
                 end_point_style: GraphEndPointStyle::Arrow { thickness: 7. },
                 line_thickness: 3.,
@@ -108,3 +109,4 @@ async fn main() {
         next_frame().await;
     }
 }
+
