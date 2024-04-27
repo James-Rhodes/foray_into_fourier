@@ -1,5 +1,5 @@
 [package]
-name = "macroquad_template"
+name = "adding_sines"
 version = "0.1.0"
 edition = "2021"
 

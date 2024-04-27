@@ -3,6 +3,14 @@
 version = 3
 
 [[package]]
+name = "adding_sines"
+version = "0.1.0"
+dependencies = [
+ "macroquad",
+ "mqanim",
+]
+
+[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,14 +165,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5cecfede1e530599c8686f7f2d609489101d3d63741a6dc423afc997ce3fcc8"
 
 [[package]]
-name = "macroquad_template"
-version = "0.1.0"
-dependencies = [
- "macroquad",
- "mqanim",
-]
-
-[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -198,7 +198,7 @@ dependencies = [
 [[package]]
 name = "mqanim"
 version = "0.1.0"
-source = "git+https://github.com/James-Rhodes/mqanim#3e3e26917d0ed956fb1fe8226f41e8d55aa34f35"
+source = "git+https://github.com/James-Rhodes/mqanim#98de2c553d59a4ea1156eba9c0efb17d2310cbbd"
 dependencies = [
  "macroquad",
 ]
