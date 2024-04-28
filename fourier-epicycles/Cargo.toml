@@ -1,0 +1,17 @@
+[package]
+name = "fourier_epicycles"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+macroquad = "0.4.5"
+mqanim = { git = "https://github.com/James-Rhodes/mqanim" }
+rustfft = { version = "6.2.0", features = ["wasm_simd"] }
+
+[profile.web-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
