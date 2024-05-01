@@ -7,6 +7,8 @@ use mqanim::{
 };
 use rustfft::{num_complex::Complex32, FftPlanner};
 
+pub mod henry;
+
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
 fn window_conf() -> Conf {
@@ -26,7 +28,7 @@ struct FourierInfo {
     freq: f32,
 }
 
-const MAX_NUM_POINTS: usize = 500;
+const MAX_NUM_POINTS: usize = 600;
 const TWO_PI: f32 = PI * 2.;
 
 const BUTTON_WIDTH: f32 = 75.;
@@ -302,16 +304,25 @@ fn reset_time(time: &mut f32, frame_count: &mut usize, epicycle_path: &mut Vec<V
 
 fn generate_points(buff: &mut Vec<Complex32>) {
     buff.clear();
-    for i in 0..MAX_NUM_POINTS {
-        let theta = mqanim::map(
-            i as f32,
-            0.,
-            (MAX_NUM_POINTS - 1) as f32,
-            0.,
-            2. * std::f32::consts::PI,
+    let offset = 50.;
+    for pt in henry::HENRY {
+        let x = mqanim::map(
+            pt.x,
+            -1.,
+            1.,
+            (-WINDOW_WIDTH / 2.) + offset,
+            (WINDOW_WIDTH / 2.) - offset,
         );
-        let r = 100. * f32::sin(5. * theta) + 150.;
-        buff.push(Complex32::new(r * f32::cos(theta), r * f32::sin(theta)));
+        let y = mqanim::map(
+            pt.y,
+            -1.,
+            1.,
+            (-WINDOW_HEIGHT / 2.) + offset,
+            (WINDOW_HEIGHT / 2.) - offset,
+        );
+        let complex_pt = Complex32::new(x, y);
+        // println!("{}", complex_pt);
+        buff.push(complex_pt);
     }
 }
 
