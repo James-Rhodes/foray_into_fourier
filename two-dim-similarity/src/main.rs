@@ -5,8 +5,8 @@ use mqanim::{
     Animation,
 };
 
-const WINDOW_WIDTH: f32 = 800.0;
-const WINDOW_HEIGHT: f32 = 800.0;
+const WINDOW_WIDTH: f32 = 1280.0;
+const WINDOW_HEIGHT: f32 = 720.0;
 fn window_conf() -> Conf {
     Conf {
         window_title: "Template".to_owned(),
@@ -28,27 +28,39 @@ async fn main() {
         mqanim::plot::Graph::new(vec2(0., 0.), size, -5.0..5.0, -5.0..5.0).style(GraphStyle {
             x_style: mqanim::plot::AxisStyle {
                 tick_step: 1.0,
+                line_thickness: 5.,
                 tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
-                        font_size: 20,
+                        font_size: 40,
                         pos_offset: vec2(0., -10.),
+                        decimal_places: 0,
                         ..Default::default() // decimal_places: todo!(),
                                              // color: todo!(),
                     },
-                    marker_style: mqanim::plot::MarkerStyle::default(),
+                    marker_style: mqanim::plot::MarkerStyle {
+                        length: 10.,
+                        thickness: 5.,
+                        ..Default::default()
+                    },
                 },
                 ..Default::default()
             },
             y_style: mqanim::plot::AxisStyle {
+                line_thickness: 5.,
                 tick_step: 1.0,
                 tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
-                        font_size: 20,
+                        font_size: 40,
                         pos_offset: vec2(-10., 0.),
+                        decimal_places: 0,
                         ..Default::default() // decimal_places: todo!(),
                                              // color: todo!(),
                     },
-                    marker_style: mqanim::plot::MarkerStyle::default(),
+                    marker_style: mqanim::plot::MarkerStyle {
+                        length: 10.,
+                        thickness: 5.,
+                        ..Default::default()
+                    },
                 },
                 ..Default::default()
             },
@@ -58,21 +70,21 @@ async fn main() {
         graph.draw_axes();
         let graph_arrow_pos = vec2(2., 3.);
         let arrow_pos = graph.graph_to_world(graph_arrow_pos);
-        draw_arrow(vec2(0., 0.), arrow_pos, 3., 5., ORANGE);
+        draw_arrow(vec2(0., 0.), arrow_pos, 5., 7., ORANGE);
 
         let mouse = animation.get_world_mouse();
 
-        draw_arrow(vec2(0., 0.), mouse, 3., 5., BLUE);
+        draw_arrow(vec2(0., 0.), mouse, 5., 7., BLUE);
         let graph_mouse_pos = graph.world_to_graph(mouse);
 
         let dot = graph_mouse_pos.x * graph_arrow_pos.x + graph_mouse_pos.y * graph_arrow_pos.y;
         let text = format!("Similarity: {:3.2}", dot);
-        draw_text_centered(&text, 0., 370., 30, WHITE);
+        draw_text_centered(&text, 0., 325., 60, WHITE);
         let text = format!(
             "(2 x {:.2}) + (3 x {:.2}) = {:3.2}",
             graph_mouse_pos.x, graph_mouse_pos.y, dot
         );
-        draw_text_centered(&text, 0., -350., 25, WHITE);
+        draw_text_centered(&text, 0., -325., 60, WHITE);
         animation.set_default_camera();
         animation.draw_frame();
 

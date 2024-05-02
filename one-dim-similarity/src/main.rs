@@ -43,16 +43,16 @@ async fn main() {
         draw_similarity_bar(&material, res);
         let mouse = animation.get_world_mouse();
 
-        let slider_size = vec2(400., 25.);
+        let slider_size = vec2(600., 40.);
         let slider_style = animation::ui::SliderStyle {
-            bar_height: 15.,
+            bar_height: 30.,
             ..Default::default()
         };
         animation::ui::draw_text_centered(
-            &format!("a = {:6.2}", a),
+            &format!("a = {:.2}", a),
             -slider_size.x / 2. - 125.,
             200.,
-            50,
+            60,
             WHITE,
         );
         animation::ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
@@ -61,10 +61,10 @@ async fn main() {
             .draw(&mut a);
 
         animation::ui::draw_text_centered(
-            &format!("b = {:6.2}", b),
+            &format!("b = {:.2}", b),
             -slider_size.x / 2. - 125.,
             100.,
-            50,
+            60,
             WHITE,
         );
         animation::ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
@@ -72,7 +72,7 @@ async fn main() {
             .style(slider_style)
             .draw(&mut b);
 
-        animation::ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 60, WHITE);
+        animation::ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 70, WHITE);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -96,8 +96,8 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
     animation::ui::draw_text_centered(
         "Similarity",
         0.,
-        text_center_y + 3.5 * SIM_BAR_SIZE.1,
-        50,
+        text_center_y + 4. * SIM_BAR_SIZE.1,
+        70,
         WHITE,
     );
 

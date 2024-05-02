@@ -31,8 +31,8 @@ struct FourierInfo {
 const MAX_NUM_POINTS: usize = 600;
 const TWO_PI: f32 = PI * 2.;
 
-const BUTTON_WIDTH: f32 = 75.;
-const BUTTON_HEIGHT: f32 = 40.;
+const BUTTON_WIDTH: f32 = 135.;
+const BUTTON_HEIGHT: f32 = 85.;
 
 #[derive(Debug, Copy, Clone)]
 enum State {
@@ -91,7 +91,7 @@ async fn main() {
         );
         if !matches!(state, State::Paused) {
             draw_toggle(
-                "Draw Manually",
+                "Draw",
                 vec2(-500., 300.),
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT,
@@ -105,12 +105,16 @@ async fn main() {
                     f32::floor(number_of_epicycles) as usize
                 ),
                 0.,
-                button_y + BUTTON_HEIGHT,
-                30,
+                button_y + 50.,
+                50,
                 WHITE,
             );
             let prev_number_of_epicycles = f32::floor(number_of_epicycles) as usize;
-            mqanim::ui::Slider::new(vec2(0., button_y), vec2(600., 25.), 1.0..200.0)
+            mqanim::ui::Slider::new(vec2(0., button_y), vec2(700., 50.), 1.0..200.0)
+                .style(mqanim::ui::SliderStyle {
+                    bar_height: 25.,
+                    ..Default::default()
+                })
                 .mouse_pos(mouse_pos)
                 .draw(&mut number_of_epicycles);
             if prev_number_of_epicycles != f32::floor(number_of_epicycles) as usize {
@@ -122,14 +126,14 @@ async fn main() {
         pts.windows(2).for_each(|slice| {
             let a = slice[0];
             let b = slice[1];
-            draw_line(a.re, a.im, b.re, b.im, 2., WHITE)
+            draw_line(a.re, a.im, b.re, b.im, 5., WHITE)
         });
         let last_pt = pts.last();
         let first_pt = pts.first();
 
         // Connect the polygon at each end
         if let (Some(fp), Some(lp)) = (first_pt, last_pt) {
-            draw_line(fp.re, fp.im, lp.re, lp.im, 2., WHITE);
+            draw_line(fp.re, fp.im, lp.re, lp.im, 5., WHITE);
         }
 
         // Transitions
@@ -254,7 +258,7 @@ async fn main() {
         epicycle_path.windows(2).for_each(|slice| {
             let pt_a = slice[0];
             let pt_b = slice[1];
-            draw_line(pt_a.x, pt_a.y, pt_b.x, pt_b.y, 4., PURPLE);
+            draw_line(pt_a.x, pt_a.y, pt_b.x, pt_b.y, 7., PURPLE);
         });
 
         if is_paused {
@@ -304,7 +308,7 @@ fn reset_time(time: &mut f32, frame_count: &mut usize, epicycle_path: &mut Vec<V
 
 fn generate_points(buff: &mut Vec<Complex32>) {
     buff.clear();
-    let offset = 50.;
+    let offset = 60.;
     for pt in henry::HENRY {
         let x = mqanim::map(
             pt.x,
@@ -332,7 +336,7 @@ fn draw_epicycles(fft_info: &[FourierInfo], time: f32, depth: usize) -> Vec2 {
         let x = start_pt.x + fi.mag * f32::cos(fi.freq * time + fi.phase);
         let y = start_pt.y + fi.mag * f32::sin(fi.freq * time + fi.phase);
 
-        draw_line(start_pt.x, start_pt.y, x, y, 1., ORANGE);
+        draw_line(start_pt.x, start_pt.y, x, y, 4., ORANGE);
         start_pt = vec2(x, y)
     });
 
@@ -365,10 +369,10 @@ fn compute_fft(
     fi_buffer.reverse();
 }
 fn draw_toggle(label: &str, pos: Vec2, width: f32, height: f32, mouse_pos: Vec2, data: &mut bool) {
-    draw_text_centered(label, pos.x, pos.y + height, 30, WHITE);
     Button::new(pos, ButtonShape::Rectangle { width, height })
         .mouse_pos(mouse_pos)
         .draw(data);
+    draw_text_centered(label, pos.x, pos.y, 60, WHITE);
 }
 
 fn clear_all_buffers(

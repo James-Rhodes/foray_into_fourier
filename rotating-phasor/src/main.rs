@@ -21,8 +21,8 @@ async fn main() {
     animation.enable_fxaa();
 
     let mut t = 0.;
-    let r = 120.;
-    let center = vec2(-200., 150.);
+    let r = 150.;
+    let center = vec2(-300., 150.);
 
     let max_cap = 300;
     let t_step = 2.;
@@ -48,13 +48,24 @@ async fn main() {
             prev_x.pop_back();
         }
 
-        mqanim::plot::Graph::new(center, vec2(2.2 * r, 2.2 * r), -1.0..1., -1.0..1.).draw_axes();
+        mqanim::plot::Graph::new(center, vec2(2.2 * r, 2.2 * r), -1.0..1., -1.0..1.)
+            .style(mqanim::plot::GraphStyle {
+                x_style: mqanim::plot::AxisStyle {
+                    line_thickness: 5.,
+                    ..Default::default()
+                },
+                y_style: mqanim::plot::AxisStyle {
+                    line_thickness: 5.,
+                    ..Default::default()
+                },
+            })
+            .draw_axes();
         draw_line(
             0. + center.x,
             0. + center.y,
             x + center.x,
             y + center.y,
-            3.,
+            5.,
             ORANGE,
         );
         draw_line(
@@ -62,7 +73,7 @@ async fn main() {
             y + center.y,
             x + center.x,
             x_start_pos.y,
-            1.,
+            5.,
             BLUE,
         );
         draw_line(
@@ -70,7 +81,7 @@ async fn main() {
             y + center.y,
             y_start_pos.x,
             y + center.y,
-            1.,
+            5.,
             PURPLE,
         );
         draw_circle(x + center.x, y + center.y, 5., ORANGE);
@@ -82,7 +93,7 @@ async fn main() {
                 prev_pt + center.y,
                 y_start_pos.x + t_step * (idx as f32),
                 *y + center.y,
-                2.,
+                5.,
                 WHITE,
             );
 
@@ -96,18 +107,19 @@ async fn main() {
                 x_start_pos.y - t_step * (idx - 1) as f32,
                 *x + center.x,
                 x_start_pos.y - t_step * (idx as f32),
-                2.,
+                5.,
                 WHITE,
             );
 
             prev_pt = *x;
         });
 
+        draw_text_centered("Phasor Position", 250., -150., 60, WHITE);
         draw_text_centered(
-            &format!("Vector pointing at cos({t:.2}) + j x sin({t:.2})"),
-            300.,
+            &format!("cos({t:.2}) + j x sin({t:.2})"),
+            250.,
             -200.,
-            30,
+            60,
             WHITE,
         );
         animation.set_default_camera();
