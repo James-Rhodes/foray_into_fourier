@@ -33,19 +33,13 @@ async fn main() {
     )
     .style(GraphStyle {
         x_style: mqanim::plot::AxisStyle {
-            tick_step: 1.,
-            tick_style: mqanim::plot::TickStyle::LabelAndMarker {
-                label_style: LabelStyle::default(),
-                marker_style: MarkerStyle::default(),
-            },
+            tick_style: mqanim::plot::TickStyle::Nothing,
+            line_thickness: 5.,
             ..Default::default()
         },
         y_style: mqanim::plot::AxisStyle {
-            tick_step: 1.,
-            tick_style: mqanim::plot::TickStyle::LabelAndMarker {
-                label_style: LabelStyle::default(),
-                marker_style: MarkerStyle::default(),
-            },
+            tick_style: mqanim::plot::TickStyle::Nothing,
+            line_thickness: 5.,
             ..Default::default()
         },
     });
@@ -66,7 +60,7 @@ async fn main() {
     loop {
         animation.set_camera();
         graph.draw_axes();
-        graph.plot_line_xy(&time, &plot_to_copy, 2., ORANGE);
+        graph.plot_line_xy(&time, &plot_to_copy, 5., ORANGE);
 
         user_plot.iter_mut().zip(&time).for_each(|(val, t)| {
             *val = (freqs[0] as u32 as f32) * f32::sin(2. * PI * 1. * t);
@@ -78,13 +72,9 @@ async fn main() {
 
         let mouse_pos = animation.get_world_mouse();
 
-        graph.plot_line_xy(&time, &user_plot, 2., BLUE);
+        graph.plot_line_xy(&time, &user_plot, 5., BLUE);
 
-        draw_toggle("1 Hz", vec2(-600., 300.), mouse_pos, &mut freqs[0]);
-        draw_toggle("2 Hz", vec2(-500., 300.), mouse_pos, &mut freqs[1]);
-        draw_toggle("3 Hz", vec2(-400., 300.), mouse_pos, &mut freqs[2]);
-        draw_toggle("4 Hz", vec2(-300., 300.), mouse_pos, &mut freqs[3]);
-        draw_toggle("5 Hz", vec2(-200., 300.), mouse_pos, &mut freqs[4]);
+        draw_all_buttons(&mut freqs, mouse_pos, vec2(320., 300.), 125.);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -93,11 +83,44 @@ async fn main() {
     }
 }
 
+fn draw_all_buttons(freqs: &mut [bool; 5], mouse_pos: Vec2, center_pos: Vec2, spacing: f32) {
+    draw_toggle(
+        "1Hz",
+        vec2(center_pos.x - 2. * spacing, center_pos.y),
+        mouse_pos,
+        &mut freqs[0],
+    );
+    draw_toggle(
+        "2Hz",
+        vec2(center_pos.x - spacing, center_pos.y),
+        mouse_pos,
+        &mut freqs[1],
+    );
+    draw_toggle(
+        "3Hz",
+        vec2(center_pos.x, center_pos.y),
+        mouse_pos,
+        &mut freqs[2],
+    );
+    draw_toggle(
+        "4Hz",
+        vec2(center_pos.x + spacing, center_pos.y),
+        mouse_pos,
+        &mut freqs[3],
+    );
+    draw_toggle(
+        "5Hz",
+        vec2(center_pos.x + 2. * spacing, center_pos.y),
+        mouse_pos,
+        &mut freqs[4],
+    );
+}
+
 fn draw_toggle(label: &str, pos: Vec2, mouse_pos: Vec2, data: &mut bool) {
-    let width = 50.;
-    let height = 25.;
-    draw_text_centered(label, pos.x, pos.y + height, 30, WHITE);
+    let width = 100.;
+    let height = 85.;
     Button::new(pos, ButtonShape::Rectangle { width, height })
         .mouse_pos(mouse_pos)
         .draw(data);
+    draw_text_centered(label, pos.x, pos.y, 70, WHITE);
 }
