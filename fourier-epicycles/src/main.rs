@@ -9,12 +9,12 @@ use rustfft::{num_complex::Complex32, FftPlanner};
 
 pub mod henry;
 
-const WINDOW_WIDTH: f32 = 1280.0;
-const WINDOW_HEIGHT: f32 = 720.0;
+const WINDOW_WIDTH: f32 = 640.0;
+const WINDOW_HEIGHT: f32 = 360.0;
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Template".to_owned(),
-        sample_count: 16,
+        window_title: "Fourier Epicycles".to_owned(),
+        sample_count: 4,
         window_width: WINDOW_WIDTH as i32,
         window_height: WINDOW_HEIGHT as i32,
         ..Default::default()
@@ -31,8 +31,10 @@ struct FourierInfo {
 const MAX_NUM_POINTS: usize = 600;
 const TWO_PI: f32 = PI * 2.;
 
-const BUTTON_WIDTH: f32 = 135.;
-const BUTTON_HEIGHT: f32 = 85.;
+const BUTTON_WIDTH: f32 = 67.;
+const BUTTON_HEIGHT: f32 = 42.;
+
+const HENRY_VERT_SHIFT: f32 = 20.;
 
 #[derive(Debug, Copy, Clone)]
 enum State {
@@ -50,8 +52,8 @@ async fn main() {
     // UI
     let mut is_paused = false;
     let mut draw_manual = false;
-    let button_y = 300.;
-    let mut number_of_epicycles = 10.;
+    let button_y = 125.;
+    let mut number_of_epicycles = 120.;
 
     let mut pts = Vec::with_capacity(MAX_NUM_POINTS);
     generate_points(&mut pts);
@@ -83,7 +85,7 @@ async fn main() {
         let mouse_pos = animation.get_world_mouse();
         draw_toggle(
             "Pause",
-            vec2(500., 300.),
+            vec2(250., 150.),
             BUTTON_WIDTH,
             BUTTON_HEIGHT,
             mouse_pos,
@@ -92,7 +94,7 @@ async fn main() {
         if !matches!(state, State::Paused) {
             draw_toggle(
                 "Draw",
-                vec2(-500., 300.),
+                vec2(-250., 150.),
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT,
                 mouse_pos,
@@ -105,14 +107,14 @@ async fn main() {
                     f32::floor(number_of_epicycles) as usize
                 ),
                 0.,
-                button_y + 50.,
-                50,
+                button_y + 40.,
+                25,
                 WHITE,
             );
             let prev_number_of_epicycles = f32::floor(number_of_epicycles) as usize;
-            mqanim::ui::Slider::new(vec2(0., button_y), vec2(700., 50.), 1.0..200.0)
+            mqanim::ui::Slider::new(vec2(0., button_y), vec2(350., 25.), 1.0..200.0)
                 .style(mqanim::ui::SliderStyle {
-                    bar_height: 25.,
+                    bar_height: 12.,
                     ..Default::default()
                 })
                 .mouse_pos(mouse_pos)
@@ -126,14 +128,28 @@ async fn main() {
         pts.windows(2).for_each(|slice| {
             let a = slice[0];
             let b = slice[1];
-            draw_line(a.re, a.im, b.re, b.im, 5., WHITE)
+            draw_line(
+                a.re,
+                a.im - HENRY_VERT_SHIFT,
+                b.re,
+                b.im - HENRY_VERT_SHIFT,
+                3.,
+                WHITE,
+            );
         });
         let last_pt = pts.last();
         let first_pt = pts.first();
 
         // Connect the polygon at each end
         if let (Some(fp), Some(lp)) = (first_pt, last_pt) {
-            draw_line(fp.re, fp.im, lp.re, lp.im, 5., WHITE);
+            draw_line(
+                fp.re,
+                fp.im - HENRY_VERT_SHIFT,
+                lp.re,
+                lp.im - HENRY_VERT_SHIFT,
+                3.,
+                WHITE,
+            );
         }
 
         // Transitions
@@ -231,7 +247,7 @@ async fn main() {
                     // Escape the pause
                     state = prev_state;
                 }
-                draw_text_centered("PAUSED", 0., 0., 200, BLACK)
+                draw_text_centered("PAUSED", 0., 0., 100, BLACK)
             }
         };
 
@@ -258,7 +274,7 @@ async fn main() {
         epicycle_path.windows(2).for_each(|slice| {
             let pt_a = slice[0];
             let pt_b = slice[1];
-            draw_line(pt_a.x, pt_a.y, pt_b.x, pt_b.y, 7., PURPLE);
+            draw_line(pt_a.x, pt_a.y, pt_b.x, pt_b.y, 4., PURPLE);
         });
 
         if is_paused {
@@ -308,7 +324,7 @@ fn reset_time(time: &mut f32, frame_count: &mut usize, epicycle_path: &mut Vec<V
 
 fn generate_points(buff: &mut Vec<Complex32>) {
     buff.clear();
-    let offset = 60.;
+    let offset = 40.;
     for pt in henry::HENRY {
         let x = mqanim::map(
             pt.x,
@@ -331,12 +347,12 @@ fn generate_points(buff: &mut Vec<Complex32>) {
 }
 
 fn draw_epicycles(fft_info: &[FourierInfo], time: f32, depth: usize) -> Vec2 {
-    let mut start_pt = vec2(0., 0.);
+    let mut start_pt = vec2(0., -HENRY_VERT_SHIFT);
     fft_info.iter().take(depth).for_each(|fi| {
         let x = start_pt.x + fi.mag * f32::cos(fi.freq * time + fi.phase);
         let y = start_pt.y + fi.mag * f32::sin(fi.freq * time + fi.phase);
 
-        draw_line(start_pt.x, start_pt.y, x, y, 4., ORANGE);
+        draw_line(start_pt.x, start_pt.y, x, y, 2., ORANGE);
         start_pt = vec2(x, y)
     });
 
@@ -372,7 +388,7 @@ fn draw_toggle(label: &str, pos: Vec2, width: f32, height: f32, mouse_pos: Vec2,
     Button::new(pos, ButtonShape::Rectangle { width, height })
         .mouse_pos(mouse_pos)
         .draw(data);
-    draw_text_centered(label, pos.x, pos.y, 60, WHITE);
+    draw_text_centered(label, pos.x, pos.y, 20, WHITE);
 }
 
 fn clear_all_buffers(
