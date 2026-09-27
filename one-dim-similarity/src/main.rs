@@ -57,7 +57,7 @@ async fn main() {
             &format!("a = {:.2}", a),
             -slider_size.x / 2. - 125.,
             200.,
-            60,
+            40,
             WHITE,
         );
         ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
@@ -69,7 +69,7 @@ async fn main() {
             &format!("b = {:.2}", b),
             -slider_size.x / 2. - 125.,
             100.,
-            60,
+            40,
             WHITE,
         );
         ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
@@ -77,7 +77,7 @@ async fn main() {
             .style(slider_style)
             .draw(&mut b);
 
-        ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 70, WHITE);
+        ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 50, WHITE);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -102,7 +102,7 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
         "Similarity",
         0.,
         text_center_y + 4. * SIM_BAR_SIZE.1,
-        70,
+        50,
         WHITE,
     );
 
@@ -116,9 +116,9 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
         INDICATOR_SIZE.1,
         WHITE,
     );
-    ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
-    ui::draw_text_centered("0", 0., text_center_y, 50, WHITE);
-    ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
+    ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 40, WHITE);
+    ui::draw_text_centered("0", 0., text_center_y, 40, WHITE);
+    ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 40, WHITE);
 }
 
 const DEFAULT_VERTEX_SHADER: &str = "

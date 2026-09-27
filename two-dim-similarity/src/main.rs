@@ -38,7 +38,7 @@ async fn main() {
                 line_thickness: 5.,
                 tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
-                        font_size: 40,
+                        font_size: 30,
                         pos_offset: vec2(0., -10.),
                         decimal_places: 0,
                         ..Default::default() // decimal_places: todo!(),
@@ -57,7 +57,7 @@ async fn main() {
                 tick_step: 1.0,
                 tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                     label_style: LabelStyle {
-                        font_size: 40,
+                        font_size: 30,
                         pos_offset: vec2(-10., 0.),
                         decimal_places: 0,
                         ..Default::default() // decimal_places: todo!(),
@@ -86,12 +86,12 @@ async fn main() {
 
         let dot = graph_mouse_pos.x * graph_arrow_pos.x + graph_mouse_pos.y * graph_arrow_pos.y;
         let text = format!("Similarity: {:3.2}", dot);
-        draw_text_centered(&text, 0., 325., 60, WHITE);
+        draw_text_centered(&text, 0., 325., 40, WHITE);
         let text = format!(
             "(2 x {:.2}) + (3 x {:.2}) = {:3.2}",
             graph_mouse_pos.x, graph_mouse_pos.y, dot
         );
-        draw_text_centered(&text, 0., -325., 60, WHITE);
+        draw_text_centered(&text, 0., -325., 40, WHITE);
         animation.set_default_camera();
         animation.draw_frame();
 

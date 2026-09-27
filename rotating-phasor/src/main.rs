@@ -2,7 +2,7 @@ use std::{collections::VecDeque, f32::consts::PI};
 
 use macroquad::miniquad::conf::{Platform, WebGLVersion};
 use macroquad::prelude::*;
-use mqanim::{ui::draw_text_centered, Animation};
+use mqanim::{draw::draw_path, ui::draw_text_centered, Animation};
 
 const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 360.0;
@@ -37,8 +37,10 @@ async fn main() {
     let y_start_pos = vec2(50., 100.);
     let mut prev_x: VecDeque<f32> = VecDeque::with_capacity(max_cap);
     let x_start_pos = vec2(50., -50.);
+    let mut y_trace: Vec<Vec2> = Vec::with_capacity(max_cap);
+    let mut x_trace: Vec<Vec2> = Vec::with_capacity(max_cap);
     loop {
-        t += 0.005;
+        t += 0.004;
         if t >= 100.0 {
             t = 0.;
         }
@@ -67,66 +69,36 @@ async fn main() {
                 },
             })
             .draw_axes();
-        draw_line(
-            0. + center.x,
-            0. + center.y,
-            x + center.x,
-            y + center.y,
-            3.,
-            ORANGE,
+        let tip = vec2(x + center.x, y + center.y);
+        draw_path(&[center, tip], 3., ORANGE);
+        draw_path(&[tip, vec2(tip.x, x_start_pos.y)], 3., BLUE);
+        draw_path(&[tip, vec2(y_start_pos.x, tip.y)], 3., PURPLE);
+        draw_circle(tip.x, tip.y, 3., ORANGE);
+
+        y_trace.clear();
+        y_trace.extend(
+            prev_y
+                .iter()
+                .enumerate()
+                .map(|(idx, y)| vec2(y_start_pos.x + t_step * idx as f32, y + center.y)),
         );
-        draw_line(
-            x + center.x,
-            y + center.y,
-            x + center.x,
-            x_start_pos.y,
-            3.,
-            BLUE,
+        draw_path(&y_trace, 3., WHITE);
+
+        x_trace.clear();
+        x_trace.extend(
+            prev_x
+                .iter()
+                .enumerate()
+                .map(|(idx, x)| vec2(x + center.x, x_start_pos.y - t_step * idx as f32)),
         );
-        draw_line(
-            x + center.x,
-            y + center.y,
-            y_start_pos.x,
-            y + center.y,
-            3.,
-            PURPLE,
-        );
-        draw_circle(x + center.x, y + center.y, 3., ORANGE);
+        draw_path(&x_trace, 3., WHITE);
 
-        let mut prev_pt = prev_y[0];
-        prev_y.iter().enumerate().skip(1).for_each(|(idx, y)| {
-            draw_line(
-                y_start_pos.x + t_step * (idx - 1) as f32,
-                prev_pt + center.y,
-                y_start_pos.x + t_step * (idx as f32),
-                *y + center.y,
-                3.,
-                WHITE,
-            );
-
-            prev_pt = *y;
-        });
-
-        let mut prev_pt = prev_x[0];
-        prev_x.iter().enumerate().skip(1).for_each(|(idx, x)| {
-            draw_line(
-                prev_pt + center.x,
-                x_start_pos.y - t_step * (idx - 1) as f32,
-                *x + center.x,
-                x_start_pos.y - t_step * (idx as f32),
-                3.,
-                WHITE,
-            );
-
-            prev_pt = *x;
-        });
-
-        draw_text_centered("Phasor Position", 125., -75., 25, WHITE);
+        draw_text_centered("Phasor Position", 125., -75., 15, WHITE);
         draw_text_centered(
             &format!("cos({t:.2}) + j x sin({t:.2})"),
             125.,
             -100.,
-            25,
+            15,
             WHITE,
         );
         animation.set_default_camera();

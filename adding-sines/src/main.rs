@@ -129,5 +129,5 @@ fn draw_toggle(label: &str, pos: Vec2, mouse_pos: Vec2, data: &mut bool) {
     Button::new(pos, ButtonShape::Rectangle { width, height })
         .mouse_pos(mouse_pos)
         .draw(data);
-    draw_text_centered(label, pos.x, pos.y, 70, WHITE);
+    draw_text_centered(label, pos.x, pos.y, 50, WHITE);
 }

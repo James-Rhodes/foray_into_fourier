@@ -78,6 +78,7 @@ async fn main() {
     compute_fft(&pts, &mut fft_buffer, &mut fi_buffer);
 
     let mut epicycle_path = Vec::with_capacity(MAX_NUM_POINTS);
+    let mut outline_path = Vec::with_capacity(MAX_NUM_POINTS + 1);
     let mut time = 0.;
     let mut frame_count = 0;
 
@@ -132,32 +133,13 @@ async fn main() {
         }
 
         // Draw current picture
-        pts.windows(2).for_each(|slice| {
-            let a = slice[0];
-            let b = slice[1];
-            draw_line(
-                a.re,
-                a.im - HENRY_VERT_SHIFT,
-                b.re,
-                b.im - HENRY_VERT_SHIFT,
-                3.,
-                WHITE,
-            );
-        });
-        let last_pt = pts.last();
-        let first_pt = pts.first();
-
-        // Connect the polygon at each end
-        if let (Some(fp), Some(lp)) = (first_pt, last_pt) {
-            draw_line(
-                fp.re,
-                fp.im - HENRY_VERT_SHIFT,
-                lp.re,
-                lp.im - HENRY_VERT_SHIFT,
-                3.,
-                WHITE,
-            );
+        outline_path.clear();
+        outline_path.extend(pts.iter().map(|pt| vec2(pt.re, pt.im - HENRY_VERT_SHIFT)));
+        // Close the polygon so the outline joins up without a seam
+        if let Some(first_pt) = pts.first() {
+            outline_path.push(vec2(first_pt.re, first_pt.im - HENRY_VERT_SHIFT));
         }
+        mqanim::draw::draw_path(&outline_path, 3., WHITE);
 
         // Transitions
         match (prev_state, state) {
@@ -278,11 +260,7 @@ async fn main() {
         }
 
         // Draw the path
-        epicycle_path.windows(2).for_each(|slice| {
-            let pt_a = slice[0];
-            let pt_b = slice[1];
-            draw_line(pt_a.x, pt_a.y, pt_b.x, pt_b.y, 4., PURPLE);
-        });
+        mqanim::draw::draw_path(&epicycle_path, 4., PURPLE);
 
         if is_paused {
             // Always check paused, seeing as you can pause from any state
@@ -354,14 +332,17 @@ fn generate_points(buff: &mut Vec<Complex32>) {
 }
 
 fn draw_epicycles(fft_info: &[FourierInfo], time: f32, depth: usize) -> Vec2 {
+    let mut path = Vec::with_capacity(depth + 1);
     let mut start_pt = vec2(0., -HENRY_VERT_SHIFT);
+    path.push(start_pt);
     fft_info.iter().take(depth).for_each(|fi| {
         let x = start_pt.x + fi.mag * f32::cos(fi.freq * time + fi.phase);
         let y = start_pt.y + fi.mag * f32::sin(fi.freq * time + fi.phase);
 
-        draw_line(start_pt.x, start_pt.y, x, y, 2., ORANGE);
-        start_pt = vec2(x, y)
+        start_pt = vec2(x, y);
+        path.push(start_pt);
     });
+    mqanim::draw::draw_path(&path, 2., ORANGE);
 
     start_pt
 }

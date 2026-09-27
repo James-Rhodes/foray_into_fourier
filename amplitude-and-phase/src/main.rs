@@ -27,7 +27,7 @@ fn window_conf() -> Conf {
 }
 
 const RESOLUTION: u8 = 200;
-const FONT_SIZE: u16 = 40;
+const FONT_SIZE: u16 = 20;
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut animation = Animation::new(WINDOW_WIDTH, WINDOW_HEIGHT, None);
@@ -47,7 +47,7 @@ async fn main() {
             tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                 label_style: LabelStyle {
                     font_size: FONT_SIZE,
-                    pos_offset: vec2(0., -20.),
+                    pos_offset: vec2(0., -10.),
                     ..Default::default()
                 },
                 marker_style: MarkerStyle {
@@ -63,7 +63,7 @@ async fn main() {
             tick_style: mqanim::plot::TickStyle::LabelAndMarker {
                 label_style: LabelStyle {
                     font_size: FONT_SIZE,
-                    pos_offset: vec2(-25., 0.),
+                    pos_offset: vec2(-15., 0.),
                     ..Default::default()
                 },
                 marker_style: MarkerStyle {
@@ -99,7 +99,7 @@ async fn main() {
         let mouse_pos = animation.get_world_mouse();
 
         let amp_pos = vec2(-350., 275.);
-        draw_text_centered("Amplitude", amp_pos.x, amp_pos.y + 55., 70, WHITE);
+        draw_text_centered("Amplitude", amp_pos.x, amp_pos.y + 55., 50, WHITE);
         let bar_offset = 20.;
         mqanim::ui::Slider::new(amp_pos, slider_size, -1.0..1.)
             .style(mqanim::ui::SliderStyle {
@@ -110,7 +110,7 @@ async fn main() {
             .draw(&mut amp);
 
         let phase_pos = vec2(350., 275.);
-        draw_text_centered("Phase", phase_pos.x, phase_pos.y + 55., 70, WHITE);
+        draw_text_centered("Phase", phase_pos.x, phase_pos.y + 55., 50, WHITE);
         mqanim::ui::Slider::new(phase_pos, slider_size, -2. * PI..2. * PI)
             .style(mqanim::ui::SliderStyle {
                 bar_height: slider_size.y - bar_offset,
@@ -120,10 +120,10 @@ async fn main() {
             .draw(&mut phase);
 
         draw_text_centered(
-            &format!("f(t) = {amp:.2} x sin(2 x pi x t + {phase:.2})"),
+            &format!("f(t) = {amp:.2}sin(2πt + {phase:.2})"),
             0.,
             -300.,
-            70,
+            50,
             WHITE,
         );
         animation.set_default_camera();
