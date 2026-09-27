@@ -1,8 +1,9 @@
 use std::f32::consts::PI;
 
+use macroquad::miniquad::conf::{Platform, WebGLVersion};
 use macroquad::prelude::*;
 use mqanim::{
-    plot::{Graph, GraphStyle, LabelStyle, MarkerStyle},
+    plot::{Graph, GraphStyle},
     ui::{draw_text_centered, Button, ButtonShape},
     Animation,
 };
@@ -12,9 +13,15 @@ const WINDOW_HEIGHT: f32 = 720.0;
 fn window_conf() -> Conf {
     Conf {
         window_title: "Adding Sines".to_owned(),
-        sample_count: 16,
+        sample_count: 4,
         window_width: WINDOW_WIDTH as i32,
         window_height: WINDOW_HEIGHT as i32,
+        // WebGL1 has no multisampled render targets, which mqanim uses for
+        // anti-aliasing. WebGL2 is supported by every browser that matters.
+        platform: Platform {
+            webgl_version: WebGLVersion::WebGL2,
+            ..Default::default()
+        },
         ..Default::default()
     }
 }

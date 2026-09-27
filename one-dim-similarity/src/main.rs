@@ -1,16 +1,21 @@
+use macroquad::miniquad::conf::{Platform, WebGLVersion};
 use macroquad::prelude::*;
-
-pub mod animation;
-use animation::Animation;
+use mqanim::{ui, Animation};
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
 fn window_conf() -> Conf {
     Conf {
         window_title: "One Dimensional Similarity".to_owned(),
-        sample_count: 16,
+        sample_count: 4,
         window_width: WINDOW_WIDTH as i32,
         window_height: WINDOW_HEIGHT as i32,
+        // WebGL1 has no multisampled render targets, which mqanim uses for
+        // anti-aliasing. WebGL2 is supported by every browser that matters.
+        platform: Platform {
+            webgl_version: WebGLVersion::WebGL2,
+            ..Default::default()
+        },
         ..Default::default()
     }
 }
@@ -44,35 +49,35 @@ async fn main() {
         let mouse = animation.get_world_mouse();
 
         let slider_size = vec2(600., 40.);
-        let slider_style = animation::ui::SliderStyle {
+        let slider_style = ui::SliderStyle {
             bar_height: 30.,
             ..Default::default()
         };
-        animation::ui::draw_text_centered(
+        ui::draw_text_centered(
             &format!("a = {:.2}", a),
             -slider_size.x / 2. - 125.,
             200.,
             60,
             WHITE,
         );
-        animation::ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
+        ui::Slider::new(vec2(0., 200.), slider_size, -10.0..10.)
             .mouse_pos(mouse)
             .style(slider_style)
             .draw(&mut a);
 
-        animation::ui::draw_text_centered(
+        ui::draw_text_centered(
             &format!("b = {:.2}", b),
             -slider_size.x / 2. - 125.,
             100.,
             60,
             WHITE,
         );
-        animation::ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
+        ui::Slider::new(vec2(0., 100.), slider_size, -10.0..10.)
             .mouse_pos(mouse)
             .style(slider_style)
             .draw(&mut b);
 
-        animation::ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 70, WHITE);
+        ui::draw_text_centered(&format!("a x b = {res:.2}"), 0., 0., 70, WHITE);
 
         animation.set_default_camera();
         animation.draw_frame();
@@ -93,7 +98,7 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
     gl_use_default_material();
 
     let text_center_y = SIM_BAR_POS.1 - SIM_BAR_SIZE.1;
-    animation::ui::draw_text_centered(
+    ui::draw_text_centered(
         "Similarity",
         0.,
         text_center_y + 4. * SIM_BAR_SIZE.1,
@@ -111,9 +116,9 @@ fn draw_similarity_bar(material: &Material, curr: f32) {
         INDICATOR_SIZE.1,
         WHITE,
     );
-    animation::ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
-    animation::ui::draw_text_centered("0", 0., text_center_y, 50, WHITE);
-    animation::ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
+    ui::draw_text_centered("100", SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
+    ui::draw_text_centered("0", 0., text_center_y, 50, WHITE);
+    ui::draw_text_centered("-100", -SIM_BAR_SIZE.0 / 2., text_center_y, 50, WHITE);
 }
 
 const DEFAULT_VERTEX_SHADER: &str = "
